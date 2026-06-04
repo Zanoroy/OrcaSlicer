@@ -3,17 +3,29 @@
 
 [![Build all](https://github.com/Snapmaker/OrcaSlicer/actions/workflows/build_all.yml/badge.svg?branch=main)](https://github.com/Snapmaker/OrcaSlicer/actions/workflows/build_all.yml)
 <br>Snapmaker Orca is an open source slicer for FDM printers based on OrcaSlicer.
- 
 
+
+
+# Main features?
+Key features are:
+- Basic slicing features & GCode viewer
+- Multiple plates management
+- Remote control & monitoring
+- Auto-arrange objects
+- Auto-orient objects
+- Hybrid/Tree/Normal support types, Customized support
+- multi-material printing and rich painting tools
+- multi-platform (Win/Mac/Linux) support
+- Global/Object/Part level slicing parameters
 
 # Download
 
 ### Stable Release
-📥 **[Download the Latest Stable Release](https://github.com/Snapmaker/OrcaSlicer/releases/latest)**  
+📥 **[Download the Latest Stable Release](https://github.com/Snapmaker/OrcaSlicer/releases/latest)**
 Visit our GitHub Releases page for the latest stable version of Snapmaker Slicer, recommended for most users.
 
 # How to install
-**Windows**: 
+**Windows**:
 1.  Download the installer for your preferred version from the [releases page](https://github.com/Snapmaker/OrcaSlicer/releases).
     - *For convenience there is also a portable build available.*
     - *If you have troubles to run the build, you might need to install following runtimes:*
@@ -25,39 +37,39 @@ Visit our GitHub Releases page for the latest stable version of Snapmaker Slicer
           -  This file may already be available on your computer if you've installed visual studio.  Check the following location: `%VCINSTALLDIR%Redist\MSVC\v142`
 
 **Mac**:
-1. Download the DMG for your computer: `arm64` version for Apple Silicon and `x86_64` for Intel CPU.  
-2. Drag Snapmaker_Orca.app to Application folder. 
-3. *If you want to run a build from a PR, you also need to follow the instructions below:*  
+1. Download the DMG for your computer: `arm64` version for Apple Silicon and `x86_64` for Intel CPU.
+2. Drag Snapmaker_Orca.app to Application folder.
+3. *If you want to run a build from a PR, you also need to follow the instructions below:*
     <details quarantine>
     - Option 1 (You only need to do this once. After that the app can be opened normally.):
       - Step 1: Hold _cmd_ and right click the app, from the context menu choose **Open**.
-      - Step 2: A warning window will pop up, click _Open_  
-      
-    - Option 2:  
+      - Step 2: A warning window will pop up, click _Open_
+
+    - Option 2:
       Execute this command in terminal: `xattr -dr com.apple.quarantine /Applications/Snapmaker_Orca.app`
       ```console
           softfever@mac:~$ xattr -dr com.apple.quarantine /Applications/Snapmaker_Orca.app
       ```
-    - Option 3:  
-        - Step 1: open the app, a warning window will pop up  
-            ![image](./SoftFever_doc/mac_cant_open.png)  
-        - Step 2: in `System Settings` -> `Privacy & Security`, click `Open Anyway`:  
-            ![image](./SoftFever_doc/mac_security_setting.png)  
+    - Option 3:
+        - Step 1: open the app, a warning window will pop up
+            ![image](./SoftFever_doc/mac_cant_open.png)
+        - Step 2: in `System Settings` -> `Privacy & Security`, click `Open Anyway`:
+            ![image](./SoftFever_doc/mac_security_setting.png)
     </details>
-    
+
 **Linux (Ubuntu)**:
- 1. If you run into trouble executing it, try this command in the terminal:  
+ 1. If you run into trouble executing it, try this command in the terminal:
     `chmod +x /path_to_appimage/Snapmaker_Orca_Linux.AppImage`
-    
+
 # How to compile
-- Windows 64-bit  
+- Windows 64-bit
   - Tools needed: Visual Studio 2019, Cmake, git, git-lfs, Strawberry Perl.
       - You will require cmake version 3.14 or later, which is available [on their website](https://cmake.org/download/).
       - Strawberry Perl is [available on their GitHub repository](https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/).
   - Run `build_release.bat` in `x64 Native Tools Command Prompt for VS 2019`
   - Note: Don't forget to run `git lfs pull` after cloning the repository to download tools on Windows
 
-- Mac 64-bit  
+- Mac 64-bit
   - Tools needed: Xcode, Cmake, git, gettext, libtool, automake, autoconf, texinfo
       - You can install most of them by running `brew install cmake gettext libtool automake autoconf texinfo`
   - run `build_release_macos.sh`
@@ -70,13 +82,13 @@ Visit our GitHub Releases page for the latest stable version of Snapmaker Slicer
           - Run => Options tab => Document Versions: uncheck `Allow debugging when browsing versions`
       - menu bar: Product => Run
 
-- Ubuntu 
+- Ubuntu
   - Dependencies **Will be auto-installed with the shell script**: `libmspack-dev libgstreamerd-3-dev libsecret-1-dev libwebkit2gtk-4.0-dev libosmesa6-dev libssl-dev libcurl4-openssl-dev eglexternalplatform-dev libudev-dev libdbus-1-dev extra-cmake-modules libgtk2.0-dev libglew-dev libudev-dev libdbus-1-dev cmake git texinfo`
   - run 'sudo ./BuildLinux.sh -u'
   - run './BuildLinux.sh -dsir'
 
 
-# Note: 
+# Note:
 If you're running Klipper, it's recommended to add the following configuration to your `printer.cfg` file.
 ```
 # Enable object exclusion
@@ -92,9 +104,9 @@ resolution: 0.1
 Snapmaker Orca is originally forked from Snapmaker_Orca.
 
 Snapmaker_Orca is originally forked from Bambu Studio, it was previously known as BambuStudio-SoftFever.
-Bambu Studio is forked from [PrusaSlicer](https://github.com/prusa3d/PrusaSlicer) by Prusa Research, which is from [Slic3r](https://github.com/Slic3r/Slic3r) by Alessandro Ranellucci and the RepRap community. 
+Bambu Studio is forked from [PrusaSlicer](https://github.com/prusa3d/PrusaSlicer) by Prusa Research, which is from [Slic3r](https://github.com/Slic3r/Slic3r) by Alessandro Ranellucci and the RepRap community.
 Orca Slicer incorporates a lot of features from SuperSlicer by @supermerill
-Orca Slicer's logo is designed by community member Justin Levine(@freejstnalxndr)  
+Orca Slicer's logo is designed by community member Justin Levine(@freejstnalxndr)
 
 
 # License

@@ -123,6 +123,17 @@ class Sidebar : public wxPanel
 {
     ConfigOptionMode    m_mode;
 public:
+    enum class AmsSyncResult {
+        Success,
+        SuccessWithUnknown,
+        Cancelled,
+        NotConnected,
+        NoAmsSupport,
+        NoAmsFilaments,
+        NoCompatibleFilaments,
+        InternalError
+    };
+
     enum DockingState
     {
         None, Left, Right
@@ -168,7 +179,7 @@ public:
     void on_bed_type_change(BedType bed_type);
     void load_ams_list(std::string const & device, MachineObject* obj);
     std::map<int, DynamicPrintConfig> build_filament_ams_list(MachineObject* obj);
-    void sync_ams_list();
+    AmsSyncResult sync_ams_list();
     // Orca
     void show_SEMM_buttons(bool bshow);
     void update_dynamic_filament_list();

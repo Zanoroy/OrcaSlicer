@@ -161,6 +161,8 @@ if [[ -n "${USE_CLANG}" ]] ; then
     export CMAKE_C_CXX_COMPILER_CLANG=(-DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++)
 fi
 
+ORCA_BUILD_DIR="build"
+
 # Configure use of ld.lld as the linker when requested
 export CMAKE_LLD_LINKER_ARGS=()
 if [[ -n "${USE_LLD}" ]] ; then
@@ -210,8 +212,11 @@ fi
 
 if [[ -n "${BUILD_ORCA}" ]] ; then
     echo "Configuring Snapmaker_Orca..."
+    if [[ -n "${BUILD_DEBUG}" ]] ; then
+        ORCA_BUILD_DIR="build-debug"
+    fi
     if [[ -n "${CLEAN_BUILD}" ]] ; then
-        rm -fr build
+        rm -fr "${ORCA_BUILD_DIR}"
     fi
     read -r -a BUILD_ARGS <<< "${ORCA_EXTRA_BUILD_ARGS}"
     if [[ -n "${FOUND_GTK3_DEV}" ]] ; then
@@ -231,33 +236,43 @@ if [[ -n "${BUILD_ORCA}" ]] ; then
 
     echo "Configuring Snapmaker_Orca..."
     set -x
-    cmake -S . -B build "${CMAKE_C_CXX_COMPILER_CLANG[@]}" "${CMAKE_LLD_LINKER_ARGS[@]}" -G "Ninja Multi-Config" \
-	  -DSLIC3R_PCH="${SLIC3R_PRECOMPILED_HEADERS}" \
-	  -DCMAKE_PREFIX_PATH="${SCRIPT_PATH}/deps/build/destdir/usr/local" \
-	  -DSLIC3R_STATIC=1 \
-	  -DORCA_TOOLS=ON \
-	  "${COLORED_OUTPUT}" \
-	  "${BUILD_ARGS[@]}"
+    if [[ -n "${BUILD_DEBUG}" ]] ; then
+        cmake -S . -B "${ORCA_BUILD_DIR}" "${CMAKE_C_CXX_COMPILER_CLANG[@]}" "${CMAKE_LLD_LINKER_ARGS[@]}" -G "Ninja" \
+	      -DSLIC3R_PCH="${SLIC3R_PRECOMPILED_HEADERS}" \
+	      -DCMAKE_PREFIX_PATH="${SCRIPT_PATH}/deps/build/destdir/usr/local" \
+	      -DSLIC3R_STATIC=1 \
+	      -DORCA_TOOLS=ON \
+	      "${COLORED_OUTPUT}" \
+	      "${BUILD_ARGS[@]}"
+    else
+        cmake -S . -B "${ORCA_BUILD_DIR}" "${CMAKE_C_CXX_COMPILER_CLANG[@]}" "${CMAKE_LLD_LINKER_ARGS[@]}" -G "Ninja Multi-Config" \
+	      -DSLIC3R_PCH="${SLIC3R_PRECOMPILED_HEADERS}" \
+	      -DCMAKE_PREFIX_PATH="${SCRIPT_PATH}/deps/build/destdir/usr/local" \
+	      -DSLIC3R_STATIC=1 \
+	      -DORCA_TOOLS=ON \
+	      "${COLORED_OUTPUT}" \
+	      "${BUILD_ARGS[@]}"
+    fi
     set +x
     echo "done"
     echo "Building Snapmaker_Orca ..."
     if [[ -n "${BUILD_DEBUG}" ]] ; then
-        cmake --build build --config Debug --target Snapmaker_Orca
+        cmake --build "${ORCA_BUILD_DIR}" --target Snapmaker_Orca
     else
-        cmake --build build --config Release --target Snapmaker_Orca
+        cmake --build "${ORCA_BUILD_DIR}" --config Release --target Snapmaker_Orca
     fi
     echo "Building Snapmaker_Orca_profile_validator .."
     if [[ -n "${BUILD_DEBUG}" ]] ; then
-        cmake --build build --config Debug --target Snapmaker_Orca_profile_validator
+        cmake --build "${ORCA_BUILD_DIR}" --target Snapmaker_Orca_profile_validator
     else
-        cmake --build build --config Release --target Snapmaker_Orca_profile_validator
+        cmake --build "${ORCA_BUILD_DIR}" --config Release --target Snapmaker_Orca_profile_validator
     fi
     ./scripts/run_gettext.sh
     echo "done"
 fi
 
 if [[ -n "${BUILD_IMAGE}" || -n "${BUILD_ORCA}" ]] ; then
-    pushd build > /dev/null
+    pushd "${ORCA_BUILD_DIR}" > /dev/null
     echo "[9/9] Generating Linux app..."
     build_linux_image="./src/build_linux_image.sh"
     if [[ -e ${build_linux_image} ]] ; then

@@ -18,9 +18,9 @@
 #include <functional>
 #include <optional>
 
-#ifndef NDEBUG
-#define HAS_GLSAFE
-#endif // NDEBUG
+// #ifndef
+// #define HAS_GLSAFE
+// #endif // NDEBUG
 
 #ifdef HAS_GLSAFE
     extern void glAssertRecentCallImpl(const char *file_name, unsigned int line, const char *function_name);
@@ -533,7 +533,7 @@ public:
     size_t 				total_memory_used() const { return this->cpu_memory_used() + this->gpu_memory_used(); }
     // Return CPU, GPU and total memory log line.
     std::string         log_memory_info() const;
-    
+
     void set_transparency(float alpha);
 
 private:
