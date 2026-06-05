@@ -25,6 +25,7 @@
 #include "UnsavedChangesDialog.hpp"
 #include "Widgets/SideButton.hpp"
 #include "Widgets/SideMenuPopup.hpp"
+#include "Widgets/SwitchButton.hpp"
 
 #include <boost/property_tree/ptree_fwd.hpp>
 
@@ -261,6 +262,7 @@ public:
 
 	void        update_title_colour_after_set_title();
     void        show_option(bool show);
+    void        show_home_view_btn(bool show);
     void        init_tabpanel();
     void        create_preset_tabs();
     //BBS: GUI refactor
@@ -348,8 +350,8 @@ public:
     void        refresh_plugin_tips();
     void        RunScript(wxString js);
 
-    void        downloadOpenProject(const std::string& fileUrl, 
-                                    const std::string& fileName, 
+    void        downloadOpenProject(const std::string& fileUrl,
+                                    const std::string& fileName,
                                     std::string completeFilePath = "");
 
     //SoftFever
@@ -391,7 +393,7 @@ public:
     wxWindow*             m_plater_page{ nullptr };
     PrintHostQueueDialog* m_printhost_queue_dlg;
 
-    
+
     mutable int m_print_select{ ePrintAll };
     mutable int m_slice_select{ eSliceAll };
     // Button* m_publish_btn{ nullptr };
@@ -399,6 +401,8 @@ public:
     SideButton* m_slice_option_btn{ nullptr };
     SideButton* m_print_btn{ nullptr };
     SideButton* m_print_option_btn{ nullptr };
+    wxStaticText* m_home_view_label{ nullptr };
+    SwitchButton* m_home_view_toggle{ nullptr };
     mutable bool          m_slice_enable{ true };
     mutable bool          m_print_enable{ true };
     bool get_enable_slice_status();

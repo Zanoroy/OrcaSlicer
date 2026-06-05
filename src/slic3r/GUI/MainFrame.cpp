@@ -9,6 +9,7 @@
 #include <wx/menu.h>
 #include <wx/progdlg.h>
 #include <wx/tooltip.h>
+#include <wx/stattext.h>
 //#include <wx/glcanvas.h>
 #include <wx/filename.h>
 #include <wx/debug.h>
@@ -1016,6 +1017,23 @@ void MainFrame::show_option(bool show)
     }
 }
 
+void MainFrame::show_home_view_btn(bool show)
+{
+    if (!m_home_view_toggle || !m_home_view_label) return;
+    bool advanced = wxGetApp().app_config->get("adv_homepage") != "false";
+    m_home_view_toggle->SetValue(advanced);
+    if (show != m_home_view_toggle->IsShown() || show != m_home_view_label->IsShown()) {
+        if (show) {
+            m_home_view_label->Show();
+            m_home_view_toggle->Show();
+        } else {
+            m_home_view_label->Hide();
+            m_home_view_toggle->Hide();
+        }
+        Layout();
+    }
+}
+
 void MainFrame::init_tabpanel() {
     // wxNB_NOPAGETHEME: Disable Windows Vista theme for the Notebook background. The theme performance is terrible on
     // Windows 10 with multiple high resolution displays connected.
@@ -1083,6 +1101,9 @@ void MainFrame::init_tabpanel() {
             }
         }
 
+        // Show/hide the home view toggle button
+        show_home_view_btn(sel == tpHome);
+
         // Send "active" to current tab if entering a monitored tab
         if (sel == tpHome) {
             // Entering homepage
@@ -1136,7 +1157,7 @@ void MainFrame::init_tabpanel() {
         });
         m_tabpanel->AddPage(m_webview, "", "tab_home_active", "tab_home_active", false);
         m_param_panel = new ParamsPanel(m_tabpanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBK_LEFT | wxTAB_TRAVERSAL);
-      
+
     }
     m_plater = new Plater(this, this);
     m_plater->SetBackgroundColour(*wxWHITE);
@@ -1548,7 +1569,7 @@ bool MainFrame::can_send_gcode() const
             if (const auto* print_host_opt = cfg.option<ConfigOptionString>("print_host"); print_host_opt)
                 return !print_host_opt->value.empty();
         }
-        
+
     }
     return true;
 }
@@ -1627,10 +1648,38 @@ wxBoxSizer* MainFrame::create_side_tools()
     m_print_option_btn->Enable();
     // sizer->Add(m_publish_btn, 0, wxLEFT | wxALIGN_CENTER_VERTICAL, FromDIP(1));
     // sizer->Add(FromDIP(15), 0, 0, 0, 0);
+    m_home_view_label = new wxStaticText(this, wxID_ANY, _L("Advanced"));
+    m_home_view_toggle = new SwitchButton(this, wxID_ANY);
+    m_home_view_toggle->SetValue(wxGetApp().app_config->get("adv_homepage") != "false");
+    m_home_view_label->Hide();
+    m_home_view_toggle->Hide();
+
+    sizer->Add(m_home_view_label , 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, FromDIP(6));
+    sizer->Add(m_home_view_toggle, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, FromDIP(15));
     sizer->Add(m_slice_option_btn, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, FromDIP(2));
     sizer->Add(m_slice_btn       , 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, FromDIP(15));
     sizer->Add(m_print_option_btn, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, FromDIP(2));
     sizer->Add(m_print_btn       , 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, FromDIP(19));
+
+    auto apply_home_view_mode = [this](bool new_advanced) {
+        wxGetApp().app_config->set("adv_homepage", new_advanced ? "true" : "false");
+        wxGetApp().app_config->save();
+        if (m_webview)
+            m_webview->LoadHomepageByMode(new_advanced);
+    };
+
+    // On some Linux/AppImage builds this control may not emit toggle events reliably in this topbar.
+    // Handle direct click toggling to keep behavior stable across platforms.
+    m_home_view_toggle->Bind(wxEVT_LEFT_DOWN, [this, apply_home_view_mode](wxMouseEvent& event) {
+        bool new_advanced = !m_home_view_toggle->GetValue();
+        m_home_view_toggle->SetValue(new_advanced);
+        apply_home_view_mode(new_advanced);
+        event.Skip(false);
+    });
+
+    m_home_view_toggle->Bind(wxEVT_TOGGLEBUTTON, [apply_home_view_mode](wxCommandEvent& event) {
+        apply_home_view_mode(event.IsChecked());
+    });
 
     sizer->Layout();
 
@@ -2247,7 +2296,7 @@ static wxMenu* generate_help_menu()
 
     append_menu_item(
         helpMenu, wxID_ANY, _L("Check for Process Preset Updates"), _L("Check for Process Preset Updates"),
-        [](wxCommandEvent&) { 
+        [](wxCommandEvent&) {
             wxGetApp().check_preset_version();
 
         },
@@ -2255,7 +2304,7 @@ static wxMenu* generate_help_menu()
 
     append_menu_item(
         helpMenu, wxID_ANY, _L("Check for Web Resource Updates"), _L("Check for Web Resource Updates"),
-        [](wxCommandEvent&) { 
+        [](wxCommandEvent&) {
             wxGetApp().check_web_version();
         },
         "", nullptr, []() { return true; });
@@ -2809,7 +2858,7 @@ void MainFrame::init_menubar_as_editor()
     auto preference_item = new wxMenuItem(parent_menu, ConfigMenuPreferences + config_id_base, _L("Preferences") + "\t" + ctrl + "P", "");
 
 #endif
-   
+
 
 #ifdef __APPLE__
     wxString about_title = wxString::Format(_L("&About %s"), SLIC3R_APP_FULL_NAME);
@@ -3125,7 +3174,7 @@ void MainFrame::set_max_recent_count(int max)
         json data;
         wxGetApp().mainframe->get_recent_projects(data, INT_MAX);
         wxGetApp().recent_file_notify(data);
-        
+
     }
 }
 
@@ -3638,7 +3687,7 @@ void MainFrame::add_to_recent_projects(const wxString& filename)
     }
 }
 
-std::string MainFrame::FileHistory::GetThumbnailUrl_str(int index) const 
+std::string MainFrame::FileHistory::GetThumbnailUrl_str(int index) const
 {
     if (m_thumbnails[index].empty())
         return "";
@@ -3706,7 +3755,7 @@ void MainFrame::get_recent_projects(nlohmann::json& data, int images) {
     for (size_t i = 0; i < m_recent_projects.GetCount(); ++i) {
         json item;
         std::string proj    = m_recent_projects.GetHistoryFile(i).ToStdString(wxConvUTF8);
-        
+
         item["project_name"] = proj.substr(proj.find_last_of("/\\") + 1);
         item["path"]  = proj;
         boost::system::error_code ec;
@@ -3716,8 +3765,8 @@ void MainFrame::get_recent_projects(nlohmann::json& data, int images) {
         }
         catch (std::exception& e) {
             std::string e_msg = e.what();
-            BOOST_LOG_TRIVIAL(error) << e.what(); 
-        }        
+            BOOST_LOG_TRIVIAL(error) << e.what();
+        }
         if (!ec) {
             std::string time = wxDateTime(t).FormatISOCombined(' ').ToStdString();
             item["time"]      = time;
@@ -3813,7 +3862,7 @@ void MainFrame::sm_remove_recent_project(wxString const& filename) {
     json data;
     wxGetApp().mainframe->get_recent_projects(data, INT_MAX);
     wxGetApp().recent_file_notify(data);
-    
+
 
 }
 
@@ -3947,7 +3996,7 @@ void MainFrame::downloadOpenProject(const std::string& fileUrl, const std::strin
         MessageDialog(this, msg, _L("Invalid File"), wxOK | wxICON_WARNING).ShowModal();
     }
 
-    
+
 }
 
 void MainFrame::technology_changed()

@@ -96,6 +96,8 @@ public:
     void SendRecentList(int images);
     void SetLoginPanelVisibility(bool bshow);
     void SendDesignStaffpick(bool on);
+    void SendHomepageViewMode(bool advanced);
+    void LoadHomepageByMode(bool advanced);
     void OpenModelDetail(std::string id, NetworkAgent *agent);
     void SendLoginInfo();
     void ShowNetpluginTip();
